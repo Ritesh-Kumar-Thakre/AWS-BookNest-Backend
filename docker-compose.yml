@@ -1,4 +1,20 @@
 services:
+  # ─── Database ─────────────────────────────────────
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-root}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - booknest-network
+
   # ─── RabbitMQ ─────────────────────────────────────
   rabbitmq:
     image: rabbitmq:3-management
@@ -43,7 +59,7 @@ services:
       - "8081:8081"
     environment:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx256m
-      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-host.docker.internal}:3306/booknest_auth?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-mysql-db}:3306/booknest_auth?createDatabaseIfNotExist=true
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-root}
@@ -51,6 +67,8 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
+        condition: service_healthy
+      mysql-db:
         condition: service_healthy
 
   # ─── Book Service ──────────────────────────────────
@@ -60,12 +78,14 @@ services:
       - "8082:8082"
     environment:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx256m
-      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-host.docker.internal}:3306/booknest_book?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-mysql-db}:3306/booknest_book?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-root}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
+        condition: service_healthy
+      mysql-db:
         condition: service_healthy
 
   # ─── Cart Service ──────────────────────────────────
@@ -75,12 +95,14 @@ services:
       - "8083:8083"
     environment:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx256m
-      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-host.docker.internal}:3306/booknest_cart?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-mysql-db}:3306/booknest_cart?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-root}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
+        condition: service_healthy
+      mysql-db:
         condition: service_healthy
 
   # ─── Order Service ─────────────────────────────────
@@ -90,7 +112,7 @@ services:
       - "8084:8084"
     environment:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx256m
-      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-host.docker.internal}:3306/booknest_order?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-mysql-db}:3306/booknest_order?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-root}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -100,6 +122,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      mysql-db:
+        condition: service_healthy
 
   # ─── Wallet Service ────────────────────────────────
   wallet-service:
@@ -108,7 +132,7 @@ services:
       - "8085:8085"
     environment:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx256m
-      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-host.docker.internal}:3306/booknest_wallet?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-mysql-db}:3306/booknest_wallet?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-root}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -116,6 +140,8 @@ services:
       - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
     depends_on:
       eureka-server:
+        condition: service_healthy
+      mysql-db:
         condition: service_healthy
 
   # ─── Review Service ────────────────────────────────
@@ -125,12 +151,14 @@ services:
       - "8086:8086"
     environment:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx256m
-      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-host.docker.internal}:3306/booknest_review?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-mysql-db}:3306/booknest_review?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-root}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
+        condition: service_healthy
+      mysql-db:
         condition: service_healthy
 
   # ─── Wishlist Service ──────────────────────────────
@@ -140,12 +168,14 @@ services:
       - "8087:8087"
     environment:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx256m
-      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-host.docker.internal}:3306/booknest_wishlist?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-mysql-db}:3306/booknest_wishlist?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-root}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
+        condition: service_healthy
+      mysql-db:
         condition: service_healthy
 
   # ─── Notification Service ──────────────────────────
@@ -155,7 +185,7 @@ services:
       - "8088:8088"
     environment:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx256m
-      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-host.docker.internal}:3306/booknest_notification?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${DB_HOST:-mysql-db}:3306/booknest_notification?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-root}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-root}
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -172,6 +202,8 @@ services:
       eureka-server:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      mysql-db:
         condition: service_healthy
 
   # ─── Frontend ──────────────────────────────────────

@@ -17,6 +17,7 @@ public class CorsConfig {
 		config.setAllowedOrigins(List.of(
 				"https://booknestr.up.railway.app",
 				"https://deploy-production-63e1.up.railway.app",
+				"http://booknest-frontend-2026.s3-website.ap-south-1.amazonaws.com",
 				"http://localhost:4200"
 		));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
