@@ -219,7 +219,7 @@ public class AuthController {
 		}
 		try {
 			String fileName = fileStorageService.storeFile(file);
-			String imageUrl = "/auth/uploads/" + fileName;
+			String imageUrl = "/api/v1/auth/uploads/" + fileName;
 
 			// Update user's profile image
 			Optional<User> userOpt = authService.getUserByEmail(
@@ -227,8 +227,8 @@ public class AuthController {
 			if (userOpt.isPresent()) {
 				User user = userOpt.get();
 				// Delete old profile image if exists
-				if (user.getProfileImageUrl() != null && user.getProfileImageUrl().startsWith("/auth/uploads/")) {
-					String oldFileName = user.getProfileImageUrl().replace("/auth/uploads/", "");
+				if (user.getProfileImageUrl() != null && user.getProfileImageUrl().startsWith("/api/v1/auth/uploads/")) {
+					String oldFileName = user.getProfileImageUrl().replace("/api/v1/auth/uploads/", "");
 					fileStorageService.deleteFile(oldFileName);
 				}
 				user.setProfileImageUrl(imageUrl);
